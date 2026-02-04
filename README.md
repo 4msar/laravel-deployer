@@ -1,41 +1,216 @@
-<p align="center">
-    <img title="Laravel Zero" height="100" src="https://raw.githubusercontent.com/laravel-zero/docs/master/images/logo/laravel-zero-readme.png" alt="Laravel Zero Logo" />
-</p>
+# Laravel Deployer
 
-<p align="center">
-  <a href="https://github.com/laravel-zero/framework/actions"><img src="https://github.com/laravel-zero/laravel-zero/actions/workflows/tests.yml/badge.svg" alt="Build Status" /></a>
-  <a href="https://packagist.org/packages/laravel-zero/framework"><img src="https://img.shields.io/packagist/dt/laravel-zero/framework.svg" alt="Total Downloads" /></a>
-  <a href="https://packagist.org/packages/laravel-zero/framework"><img src="https://img.shields.io/packagist/v/laravel-zero/framework.svg?label=stable" alt="Latest Stable Version" /></a>
-  <a href="https://packagist.org/packages/laravel-zero/framework"><img src="https://img.shields.io/packagist/l/laravel-zero/framework.svg" alt="License" /></a>
-</p>
+A powerful zero-downtime deployment tool for Laravel applications built with Laravel Zero. Deploy your Laravel applications from GitHub releases with confidence using an easy-to-use CLI tool.
 
-Laravel Zero was created by [Nuno Maduro](https://github.com/nunomaduro) and [Owen Voke](https://github.com/owenvoke), and is a micro-framework that provides an elegant starting point for your console application. It is an **unofficial** and customized version of Laravel optimized for building command-line applications.
+## Features
 
-- Built on top of the [Laravel](https://laravel.com) components.
-- Optional installation of Laravel [Eloquent](https://laravel-zero.com/docs/database/), Laravel [Logging](https://laravel-zero.com/docs/logging/) and many others.
-- Supports interactive [menus](https://laravel-zero.com/docs/build-interactive-menus/) and [desktop notifications](https://laravel-zero.com/docs/send-desktop-notifications/) on Linux, Windows & MacOS.
-- Ships with a [Scheduler](https://laravel-zero.com/docs/task-scheduling/) and  a [Standalone Compiler](https://laravel-zero.com/docs/build-a-standalone-application/).
-- Integration with [Collision](https://github.com/nunomaduro/collision) - Beautiful error reporting
-- Follow the creator Nuno Maduro:
-    - YouTube: **[youtube.com/@nunomaduro](https://www.youtube.com/@nunomaduro)** — Videos every weekday
-    - Twitch: **[twitch.tv/enunomaduro](https://www.twitch.tv/enunomaduro)** — Streams (almost) every weekday
-    - Twitter / X: **[x.com/enunomaduro](https://x.com/enunomaduro)**
-    - LinkedIn: **[linkedin.com/in/nunomaduro](https://www.linkedin.com/in/nunomaduro)**
-    - Instagram: **[instagram.com/enunomaduro](https://www.instagram.com/enunomaduro)**
-    - Tiktok: **[tiktok.com/@enunomaduro](https://www.tiktok.com/@enunomaduro)**
+- 🚀 **Zero Downtime Deployment** - Symlink-based deployments ensure your application stays online
+- 📦 **GitHub Releases Integration** - Automatically fetch and deploy from GitHub releases
+- 🔄 **Automatic Rollback** - Rolls back to previous version if deployment fails
+- 🗂️ **Release Management** - Keep multiple releases and easily cleanup old ones
+- 🔐 **Preserve Important Files** - Automatically preserves `.env`, storage, and other critical files
+- ⚡ **Laravel Optimization** - Runs cache optimization commands automatically
+- 🔍 **Health Checks** - Verifies deployment success before finalizing
+- 🎨 **Beautiful CLI** - Clean, colored output with progress indicators
+- ⚙️ **Highly Configurable** - Configure via `.env`, config file, or command options
 
-------
+## Installation
 
-## Documentation
+### Via Composer (Recommended)
 
-For full documentation, visit [laravel-zero.com](https://laravel-zero.com/).
+```bash
+composer global require laravel-zero/laravel-deployer
+```
 
-## Support the development
-**Do you like this project? Support it by donating**
+### Via Download
 
-- PayPal: [Donate](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=66BYDWAT92N6L)
-- Patreon: [Donate](https://www.patreon.com/nunomaduro)
+Download the latest `laravel-deployer` PHAR file from the releases page:
+
+```bash
+wget https://github.com/your-org/laravel-deployer/releases/latest/download/laravel-deployer
+chmod +x laravel-deployer
+sudo mv laravel-deployer /usr/local/bin/laravel-deployer
+```
+
+### Build from Source
+
+```bash
+git clone https://github.com/your-org/laravel-deployer.git
+cd laravel-deployer
+composer install
+php laravel-deployer app:build
+```
+
+## Configuration
+
+### Using .env File
+
+Copy the example configuration:
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` with your settings:
+
+```env
+DEPLOY_GITHUB_REPO=your-username/your-repo
+DEPLOY_APP_NAME=your-app
+DEPLOY_INSTALL_DIR=/var/www
+DEPLOY_WEB_USER=www-data
+DEPLOY_GITHUB_TOKEN=your-github-token
+DEPLOY_KEEP_RELEASES=2
+```
+
+### Using Command Options
+
+You can override configuration using command-line options:
+
+```bash
+laravel-deployer deploy \
+    --repo=your-username/your-repo \
+    --app-name=your-app \
+    --install-dir=/var/www \
+    --web-user=www-data \
+    --keep-releases=2
+```
+
+## Usage
+
+### Basic Deployment
+
+```bash
+# Interactive mode (prompts for configuration)
+laravel-deployer deploy
+
+# With options
+laravel-deployer deploy --repo=username/repo --install-dir=/var/www
+```
+
+### Advanced Options
+
+```bash
+# Force deployment even if same version
+laravel-deployer deploy --force
+
+# Skip database migrations
+laravel-deployer deploy --skip-migrations
+
+# Auto cleanup old releases without prompting
+laravel-deployer deploy --auto-cleanup
+
+# Use GitHub token for private repos
+laravel-deployer deploy --github-token=your_token_here
+
+# Keep specific number of old releases
+laravel-deployer deploy --keep-releases=5
+```
+
+### Full Example
+
+```bash
+laravel-deployer deploy \
+    --repo=4msar/bill-organizer \
+    --app-name=bill-organizer \
+    --install-dir=/var/www \
+    --web-user=www-data \
+    --github-token=ghp_xxxxxxxxxxxx \
+    --keep-releases=3 \
+    --auto-cleanup
+```
+
+## How It Works
+
+1. **Fetch Release**: Downloads the latest release from GitHub
+2. **Prepare**: Extracts the release to a temporary directory
+3. **Preserve Files**: Copies important files from current installation (`.env`, storage, etc.)
+4. **Deploy**: Creates a new release directory and copies files
+5. **Optimize**: Runs Laravel optimization commands (config, route, view cache)
+6. **Migrate**: Optionally runs database migrations
+7. **Switch**: Updates symlink to point to new release
+8. **Health Check**: Verifies the application is working
+9. **Cleanup**: Removes old releases (optional)
+10. **Rollback**: Automatically rolls back on failure
+
+## Directory Structure
+
+After deployment, your directory structure will look like:
+
+```
+/var/www/
+├── your-app -> your-app-v1.2.0  (symlink to current release)
+├── your-app-v1.2.0/              (current release)
+├── your-app-v1.1.0/              (previous release)
+└── backups/                      (backup directory)
+```
+
+## Requirements
+
+- PHP ^8.2
+- Composer
+- Git
+- `curl`, `unzip` command-line tools
+- Proper file permissions on target server
+
+## GitHub Token
+
+For private repositories or to avoid rate limiting, create a GitHub Personal Access Token:
+
+1. Go to https://github.com/settings/tokens
+2. Click "Generate new token (classic)"
+3. Select scopes: `repo` (for private repos) or `public_repo` (for public repos)
+4. Copy the token and use it with `--github-token` option or in `.env`
+
+## Deployment Best Practices
+
+1. **Test Locally**: Always test your release locally before deploying
+2. **Backup Database**: Backup your database before running migrations
+3. **Use Releases**: Tag your code with semantic versioning (v1.0.0, v1.1.0, etc.)
+4. **Preserve Files**: Ensure all important files are listed in config
+5. **Health Checks**: Verify your application after deployment
+6. **Keep Releases**: Keep at least 2 previous releases for quick rollback
+
+## Troubleshooting
+
+### Permission Denied
+
+Run with sudo or ensure your user has write permissions:
+
+```bash
+sudo laravel-deployer deploy
+```
+
+### GitHub Rate Limiting
+
+Use a GitHub token to increase rate limits:
+
+```bash
+laravel-deployer deploy --github-token=your_token
+```
+
+### Migration Failures
+
+Skip migrations and run them manually:
+
+```bash
+laravel-deployer deploy --skip-migrations
+cd /var/www/your-app
+php artisan migrate
+```
+
+### Rollback Manually
+
+If automatic rollback fails:
+
+```bash
+cd /var/www
+ln -sfn your-app-v1.1.0 your-app
+```
 
 ## License
 
-Laravel Zero is an open-source software licensed under the MIT license.
+This project is open-sourced software licensed under the MIT license.
+
+## Credits
+
+Built with [Laravel Zero](https://laravel-zero.com) - The PHP framework for console applications.
