@@ -19,7 +19,7 @@ A powerful zero-downtime deployment tool for Laravel applications built with Lar
 ### Via Composer (Recommended)
 
 ```bash
-composer global require laravel-zero/laravel-deployer
+composer global require 4msar/laravel-deployer
 ```
 
 ### Via Download
@@ -27,7 +27,7 @@ composer global require laravel-zero/laravel-deployer
 Download the latest `laravel-deployer` PHAR file from the releases page:
 
 ```bash
-wget https://github.com/your-org/laravel-deployer/releases/latest/download/laravel-deployer
+wget https://github.com/4msar/laravel-deployer/raw/main/builds/laravel-deployer -O laravel-deployer
 chmod +x laravel-deployer
 sudo mv laravel-deployer /usr/local/bin/laravel-deployer
 ```
@@ -35,7 +35,7 @@ sudo mv laravel-deployer /usr/local/bin/laravel-deployer
 ### Build from Source
 
 ```bash
-git clone https://github.com/your-org/laravel-deployer.git
+git clone https://github.com/4msar/laravel-deployer.git
 cd laravel-deployer
 composer install
 php laravel-deployer app:build
@@ -146,7 +146,7 @@ After deployment, your directory structure will look like:
 
 ## Requirements
 
-- PHP ^8.2
+- PHP ^8.4
 - Composer
 - Git
 - `curl`, `unzip` command-line tools
@@ -206,6 +206,16 @@ If automatic rollback fails:
 cd /var/www
 ln -sfn your-app-v1.1.0 your-app
 ```
+
+## Self Update
+
+To update `laravel-deployer` to the latest version, run:
+
+```bash
+laravel-deployer self-update
+```
+
+It will download and replace the current PHAR with the latest release.
 
 ## License
 
