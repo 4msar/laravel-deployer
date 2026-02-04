@@ -223,6 +223,12 @@ class DeployCommand extends Command
      */
     private function downloadAndPrepare(): bool
     {
+        // Confirm before downloading
+        if (!$this->confirm("Download and prepare version {$this->latestVersion}?", true)) {
+            $this->info('Deployment cancelled');
+            return false;
+        }
+
         return $this->task('Downloading and extracting release', function () {
             // Clean and create temp directory
             if (File::exists($this->tempDir)) {
