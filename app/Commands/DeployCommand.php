@@ -62,6 +62,10 @@ class DeployCommand extends Command
             return self::FAILURE;
         }
 
+        if (!$this->backupApp()) {
+            return self::FAILURE;
+        }
+
         // Pre-deployment checks
         if (!$this->checkDependencies()) {
             return self::FAILURE;
@@ -170,6 +174,7 @@ class DeployCommand extends Command
                 $headers['Authorization'] = "Bearer {$this->githubToken}";
             }
 
+            /** @var \Illuminate\Http\Client\Response $response */
             $response = Http::withHeaders($headers)
                 ->get("https://api.github.com/repos/{$this->githubRepo}/releases/latest");
 
@@ -243,6 +248,7 @@ class DeployCommand extends Command
             }
 
             $zipPath = "{$this->tempDir}/{$this->assetName}";
+            /** @var \Illuminate\Http\Client\Response $response */
             $response = Http::withHeaders($headers)->get($this->downloadUrl);
 
             if (!$response->successful()) {
@@ -403,7 +409,13 @@ class DeployCommand extends Command
     {
         return $this->task('Performing health check', function () {
             exec("cd {$this->installDir} && php artisan --version", $output, $returnVar);
+
             if ($returnVar !== 0) {
+
+                if ($this->confirm('Application health check failed. Continue deployment?', false)) {
+                    return true;
+                }
+
                 throw new \Exception('Application health check failed');
             }
             return true;
@@ -429,7 +441,17 @@ class DeployCommand extends Command
                 usort($releases, 'version_compare');
                 $currentRelease = "{$this->appName}-{$this->latestVersion}";
 
-                foreach ($releases as $release) {
+                $releasesToKeep = array_slice($releases, -$this->keepReleases);
+                $releasesToRemove = array_diff($releases, $releasesToKeep);
+
+                $this->newLine(1);
+                $this->table(
+                    ['Releases', 'Keeping'],
+                    array_map(fn($r) => [basename($r), in_array($r, $releasesToKeep) ? 'Yes' : 'No'], $releases)
+                );
+                $this->newLine(1);
+
+                foreach ($releasesToRemove as $release) {
                     if (basename($release) !== $currentRelease) {
                         $this->info("  Removing old release: " . basename($release));
                         File::deleteDirectory($release);
@@ -437,6 +459,56 @@ class DeployCommand extends Command
                 }
             }
 
+            return true;
+        });
+    }
+
+    /**
+     * Backup current application.
+     */
+    private function backupApp(): bool
+    {
+        if ($this->confirm('Do you want to create a backup of the current installation?', false) === false) {
+            $this->info('Skipping backup as per user choice');
+            return true;
+        }
+
+        return $this->task('Backing up current application', function () {
+
+            if (!File::exists($this->installDir)) {
+                $this->warn('No existing installation found to backup');
+                return true;
+            }
+
+            // Create backup directory if not exists
+            if (!File::exists($this->backupDir)) {
+                File::makeDirectory($this->backupDir, 0755, true);
+            }
+
+            $timestamp = date('Ymd-His');
+            $backupPath = "{$this->backupDir}/{$this->appName}-backup-{$timestamp}.zip";
+
+            $zip = new ZipArchive;
+            if ($zip->open($backupPath, ZipArchive::CREATE) !== true) {
+                throw new \Exception('Failed to create backup archive');
+            }
+
+            $files = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($this->installDir),
+                \RecursiveIteratorIterator::LEAVES_ONLY
+            );
+
+            foreach ($files as $name => $file) {
+                if (!$file->isDir()) {
+                    $filePath = $file->getRealPath();
+                    $relativePath = substr($filePath, strlen($this->installDir) + 1);
+                    $zip->addFile($filePath, $relativePath);
+                }
+            }
+
+            $zip->close();
+
+            $this->info("Backup created at: {$backupPath}");
             return true;
         });
     }
