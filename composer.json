@@ -1,5 +1,5 @@
 {
-    "name": "laravel-zero/laravel-deployer",
+    "name": "4msar/laravel-deployer",
     "description": "Zero-downtime deployment tool for Laravel applications from GitHub releases",
     "keywords": [
         "laravel",
@@ -10,17 +10,17 @@
         "zero-downtime",
         "cli"
     ],
-    "homepage": "https://github.com/your-org/laravel-deployer",
+    "homepage": "https://github.com/4msar/laravel-deployer",
     "type": "project",
     "license": "MIT",
     "support": {
-        "issues": "https://github.com/your-org/laravel-deployer/issues",
-        "source": "https://github.com/your-org/laravel-deployer"
+        "issues": "https://github.com/4msar/laravel-deployer/issues",
+        "source": "https://github.com/4msar/laravel-deployer"
     },
     "authors": [
         {
-            "name": "Your Name",
-            "email": "your.email@example.com"
+            "name": "Saiful Alam",
+            "email": "hello@msar.me"
         }
     ],
     "require": {
@@ -28,7 +28,8 @@
         "ext-zip": "*",
         "guzzlehttp/guzzle": "^7.8",
         "illuminate/http": "^12.17",
-        "laravel-zero/framework": "^12.0.2"
+        "laravel-zero/framework": "^12.0.2",
+        "laravel-zero/phar-updater": "^1.4"
     },
     "require-dev": {
         "laravel/pint": "^1.25.1",
