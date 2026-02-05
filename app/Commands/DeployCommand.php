@@ -178,17 +178,25 @@ class DeployCommand extends Command
             $response = Http::withHeaders($headers)
                 ->get("https://api.github.com/repos/{$this->githubRepo}/releases/latest");
 
-            if (!$response->successful()) {
+            if (!$response->successful() && !empty($this->githubToken)) {
                 throw new \Exception('Repository not found or no releases available');
+            } elseif (!$response->successful()) {
+                $this->githubToken = $this->ask('Provide a valid GitHub token to access private repositories or increase API rate limits', null);
+
+                return $this->getLatestRelease();
             }
 
             $releaseInfo = $response->json();
 
-            $this->latestVersion = $releaseInfo['tag_name'] ?? null;
-            $this->downloadUrl = $releaseInfo['assets'][0]['browser_download_url'] ?? null;
-            $this->assetName = $releaseInfo['assets'][0]['name'] ?? null;
+            $this->latestVersion = $releaseInfo['tag_name'] ?? '';
 
-            if (!$this->latestVersion || !$this->downloadUrl) {
+            $asset = collect($releaseInfo['assets'] ?? [])
+                ->first(fn($item) => !empty($item['browser_download_url']));
+
+            $this->downloadUrl = $asset['browser_download_url'] ?? $releaseInfo['zipball_url'] ?? '';
+            $this->assetName = $asset['name'] ?? "{$this->appName}-{$this->latestVersion}.zip";
+
+            if (empty($this->latestVersion) || empty($this->downloadUrl)) {
                 throw new \Exception('Could not fetch release information');
             }
 
