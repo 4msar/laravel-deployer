@@ -32,6 +32,12 @@ chmod +x laravel-deployer
 sudo mv laravel-deployer /usr/local/bin/laravel-deployer
 ```
 
+#### One click install script
+
+```bash
+curl -sS https://raw.githubusercontent.com/4msar/laravel-deployer/main/install.sh | bash
+```
+
 ### Build from Source
 
 ```bash

@@ -5,8 +5,11 @@
 FILE_NAME="laravel-deployer"
 URL="https://github.com/4msar/laravel-deployer/raw/refs/heads/main/builds/laravel-deployer"
 DESTINATION="/usr/local/bin/$FILE_NAME"
+
 echo "This script will download the laravel-deployer build file and move it to $DESTINATION"
-read -p "Do you want to continue? (y/n): " choice
+
+read -p "Do you want to continue? (y/n): " choice < /dev/tty
+
 if [[ "$choice" != "y" && "$choice" != "Y" ]]; then
     echo "Installation cancelled."
     exit 0
@@ -25,7 +28,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Moving $FILE_NAME to $DESTINATION (you may be prompted for your password)..."
-read -p "Do you want to continue? (y/n): " choice
+read -p "Do you want to continue? (y/n): " choice < /dev/tty
 if [[ "$choice" != "y" && "$choice" != "Y" ]]; then
     echo "The file is downloaded and made executable, but not moved."
     exit 0
